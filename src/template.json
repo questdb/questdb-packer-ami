@@ -1,0 +1,59 @@
+{
+  "_comment": "Packer Template for QuestDB. Based on Amazon Linux 2",
+  "variables": {
+    "aws_region": "us-east-1",
+    "base_ami_name": "questdb"
+  },
+  "builders": [
+    {
+      "name": "ami",
+      "ami_name": "{{ user `base_ami_name` }}-amzn2-{{ timestamp }}",
+      "ami_description": "An Amazon Linux 2 AMI with QuestDB installed.",
+      "ami_regions": ["{{user `aws_region`}}"],
+      "instance_type": "t3.micro",
+      "region": "{{user `aws_region`}}",
+      "type": "amazon-ebs",
+      "source_ami_filter": {
+        "filters": {
+          "virtualization-type": "hvm",
+          "architecture": "x86_64",
+          "name": "amzn2-ami-hvm-*-x86_64-gp2",
+          "block-device-mapping.volume-type": "gp2",
+          "root-device-type": "ebs"
+        },
+        "owners": ["amazon"],
+        "most_recent": true
+      },
+      "ssh_username": "ec2-user"
+    }
+  ],
+  "provisioners": [
+    {
+      "type": "file",
+      "source": "./assets",
+      "destination": "/tmp"
+    },
+    {
+      "type": "file",
+      "source": "./config",
+      "destination": "/tmp"
+    },
+    {
+      "type": "file",
+      "source": "./scripts",
+      "destination": "/tmp"
+    },
+    {
+      "type": "shell",
+      "execute_command": "echo '' | sudo -S su - root -c '{{ .Path }}'",
+      "scripts": ["build.bash"]
+    },
+    {
+      "type": "shell",
+      "inline": [
+        "rm .ssh/authorized_keys",
+        "sudo rm /root/.ssh/authorized_keys"
+      ]
+    }
+  ]
+}
