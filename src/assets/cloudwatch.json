@@ -10,7 +10,7 @@
           {
             "file_path": "/var/log/questdb/logs.log",
             "log_group_name": "/questdb-{instance_id}",
-            "log_stream_name": "questdb-{instance_id}",
+            "log_stream_name": "questdb-systemd-service.log",
             "timezone": "UTC"
           }
         ]
